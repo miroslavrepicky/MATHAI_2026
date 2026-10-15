@@ -6,16 +6,69 @@ from numpy import sin as m_sin
 
 
 def nelder_mead(function, points: list, alpha=1, gamma=2, rho=0.5, omega=0.5):
-    b, g, w = sorted(points, key=lambda p: lambdify((x, y), function, 'math')(p[0], p[1]))
+    x, y = symbols('x y', real=True)
+    z = lambdify((x, y), function, 'math')
+    sorted_points = sorted(np.array(points), key=lambda p: z(p[0], p[1]))
+    b, g, w = sorted_points[0], sorted_points[1], sorted_points[2]
     print(f"BEST:{b}\nGOOD:{g}\nWORST:{w}")
+    center = (b + g) / 2
 
+    r = reflection(center, w, alpha)
+    if z(b[0], b[1]) <= z(r[0], r[1]) < z(g[0], g[1]):
+        sorted_points[2] = r
+        sorted_points = sorted(np.array(points), key=lambda p: z(p[0], p[1]))
+        b, g, w = sorted_points[0], sorted_points[1], sorted_points[2]
+
+    elif z(r[0], r[1]) < z(b[0], b[1]):
+        e = expansion_r(center, r, gamma)
+        if z(e[0], e[1]) < z(r[0], r[1]):
+            sorted_points[2] = e
+        else:
+            sorted_points[2] = r
+        sorted_points = sorted(np.array(points), key=lambda p: z(p[0], p[1]))
+        b, g, w = sorted_points[0], sorted_points[1], sorted_points[2]
+    else:
+        k = contraction(center, w, rho)
+        if z(k[0], k[1]) < z(w[0], w[1]):
+            sorted_points[2] = k
+        else:
+            g, w = shrinkage(b, g, w, omega)
+            sorted_points[2] = w
+            sorted_points[1] = g
+        sorted_points = sorted(np.array(points), key=lambda p: z(p[0], p[1]))
+        b, g, w = sorted_points[0], sorted_points[1], sorted_points[2]
+
+
+
+def reflection(center , worst, alpha=1):
+    # center moze byt oznacovany ako M alebo ako X0
+    r = center + alpha * (center - worst)
+    return r
+
+
+def expansion(center, worst, gamma=2):
+    e = (gamma + 1) * center - gamma * worst
+    return e
+
+def expansion_r(center, r, gamma=2):
+    e = center + gamma * (r - center)
+    return e
+
+def contraction(center, worst, rho=0.5):
+    k = center + rho * (worst - center)
+    return k
+
+def shrinkage(best, good, worst, omega=0.5):
+    g = best + omega * (good - best)
+    w = best + omega * (worst - best)
+    return g, w
 
 if __name__ == '__main__':
     x, y = symbols('x y', real=True)
-    #f = x**2 + 2*y**2
     f = x**2 + 2 * y**2
     # hx, hy, hz = None
     nelder_mead(f, [(2, 2), (2, 1), (1, 2)])
+
 
     # --- VYKRESLENIE POMOCOU MATPLOTLIB ---
     fig = plt.figure(figsize=(12, 6))
