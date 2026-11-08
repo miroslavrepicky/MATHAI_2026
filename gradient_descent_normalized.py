@@ -18,7 +18,7 @@ def gradient_descent_normalized(function ,start_point):
 
     d_x = lambdify((x, y), diff(function, x), 'math')
     d_y = lambdify((x, y), diff(function, y), 'math')
-    while abs(z_val - z_prev) > 0.000001:
+    while sqrt(x_val**2 + y_val**2) > 10e-3:
         z_prev = z_val
         grad_x = d_x(x_val, y_val)
         grad_y = d_y(x_val, y_val)

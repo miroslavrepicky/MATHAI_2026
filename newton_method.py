@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from numpy import sin as m_sin
 
+from math import sqrt
+
 
 
 def newton_method(function ,start_point):
@@ -22,7 +24,7 @@ def newton_method(function ,start_point):
     d_yx = diff(d_y, x)
     h = Matrix(2, 2, [d_xx, d_xy, d_yx, d_yy])
     h1 = h.inv()
-    while abs(z_val - z_prev) > 0.000001:
+    while sqrt(x_val**2 + y_val**2) > 10e-3:
         h1_val_x = lambdify((x, y), h1[0], 'math')(x_val, y_val)
         h1_val_y = lambdify((x, y), h1[-1], 'math')(x_val, y_val)
         z_prev = z_val

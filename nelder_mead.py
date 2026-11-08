@@ -4,8 +4,12 @@ from sympy import symbols, lambdify
 import matplotlib.pyplot as plt
 import numpy as np
 
+def calculate_distance(point1, point2):
+    return np.sqrt((point1[0] - point2[0])**2 + (point1[1] - point2[1])**2)
 
-def nelder_mead(function, points: list, alpha=1, gamma=2, rho=0.5, omega=0.5):
+# bud mame minimum alebo nie. Ak nie musime ist podla ineho pravidla
+
+def nelder_mead(function, points: list, alpha=1, gamma=2, rho=0.5, omega=0.5, minimum:list=[]):
     triangle_history = []
     x, y = symbols('x y', real=True)
     z_raw = lambdify((x, y), function, 'math')
@@ -23,8 +27,13 @@ def nelder_mead(function, points: list, alpha=1, gamma=2, rho=0.5, omega=0.5):
     # Do the cycle while the difference between functions values at given point is not significant
     # ***
     print(f"|-----BEST--------|------GOOD---------|-----WORST---------|")
-    threshold = 1e-5
-    while abs(z(b[0], b[1]) - z(g[0], g[1])) > threshold or abs(z(b[0], b[1]) - z(w[0], w[1])) > threshold or abs(z(w[0], w[1]) - z(g[0], g[1])) > threshold:
+    threshold = 1e-3
+    found = False
+    if len(minimum) > 0:
+        found = calculate_distance(minimum, b) < threshold
+    else:
+        found = not (abs(z(b[0], b[1]) - z(g[0], g[1])) > threshold or abs(z(b[0], b[1]) - z(w[0], w[1])) > threshold or abs(z(w[0], w[1]) - z(g[0], g[1])) > threshold)
+    while not found:
         center = ((b + g) / 2)
         print(f"|-----------------|-------------------|-------------------|")
         print(f"f({(b)}={z(b[0], b[1])}) | f({(g)})={z(g[0], g[1])} | f({(w)})={z(w[0], w[1])}")
@@ -55,6 +64,11 @@ def nelder_mead(function, points: list, alpha=1, gamma=2, rho=0.5, omega=0.5):
             b, g, w = sorted_points[0], sorted_points[1], sorted_points[2]
         triangle_history.append(sorted_points.copy())
         triangle_history[-1].append(sorted_points[0].copy())
+        if len(minimum) > 0:
+            found = calculate_distance(minimum, b) < threshold
+        else:
+            found = not (abs(z(b[0], b[1]) - z(g[0], g[1])) > threshold or abs(
+                z(b[0], b[1]) - z(w[0], w[1])) > threshold or abs(z(w[0], w[1]) - z(g[0], g[1])) > threshold)
     print(f"|-----------------|-------------------|-------------------|")
     print(f"f({(b)}={z(b[0], b[1])}) | f({(g)})={z(g[0], g[1])} | f({(w)})={z(w[0], w[1])}")
     print(f"|-----------------|-------------------|-------------------|")

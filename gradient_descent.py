@@ -1,3 +1,5 @@
+import math
+
 from sympy import symbols, diff, lambdify
 import matplotlib.pyplot as plt
 import numpy as np
@@ -15,7 +17,7 @@ def gradient_descent(function ,start_point, alpha):
     z_prev = z_val + 1
     d_x = diff(function, x)
     d_y = diff(function, y)
-    while abs(z_val - z_prev) > 0.000001:
+    while math.sqrt(x_val**2 + y_val**2) > 10e-3:
         z_prev = z_val
         x_val = x_val - alpha * lambdify((x, y), d_x, 'math')(x_val, y_val)
         y_val = y_val - alpha * lambdify((x, y), d_y, 'math')(x_val, y_val)
