@@ -24,14 +24,22 @@ def newton_method(function ,start_point):
     d_yx = diff(d_y, x)
     h = Matrix(2, 2, [d_xx, d_xy, d_yx, d_yy])
     h1 = h.inv()
-    while sqrt(x_val**2 + y_val**2) > 10e-3:
-        h1_val_x = lambdify((x, y), h1[0], 'math')(x_val, y_val)
-        h1_val_y = lambdify((x, y), h1[-1], 'math')(x_val, y_val)
+    while abs(z_val - z_prev) > 0.00000001:
+        try:
+            h1_val = h1.subs({x: x_val, y: y_val})
+            gx = d_x.subs({x: x_val, y: y_val})
+            gy = d_y.subs({x: x_val, y: y_val})
+
+            new_x = float(x_val - (h1_val[0, 0] * gx + h1_val[0, 1] * gy))
+            new_y = float(y_val - (h1_val[1, 0] * gx + h1_val[1, 1] * gy))
+        except (ZeroDivisionError, TypeError):
+            print(f"Hessián je v bode ({x_val}, {y_val}) singulárny, metóda sa zastavuje.")
+            break
+
         z_prev = z_val
-        x_val = x_val - h1_val_x * lambdify((x, y), d_x, 'math')(x_val, y_val)
-        y_val = y_val - h1_val_y * lambdify((x, y), d_y, 'math')(x_val, y_val)
-        z = lambdify((x, y), function, 'math')
+        x_val, y_val = new_x, new_y
         z_val = z(x_val, y_val)
+
         history_x.append(x_val)
         history_y.append(y_val)
         history_z.append(z_val)
@@ -44,18 +52,18 @@ def newton_method(function ,start_point):
 if __name__ == '__main__':
     x, y = symbols('x y', real=True)
     #f = x**2 + 2*y**2
-    f = 0.25 * (x**2 + y**2) + 2 * sin(2.5*x) + 1.5 * sin(2*y)
-    hx, hy, hz = newton_method(f, (5, 6))
+    f = x**2 + y**2
+    hx, hy, hz = newton_method(f, (3, 2))
 
     # --- VYKRESLENIE POMOCOU MATPLOTLIB ---
     fig = plt.figure(figsize=(12, 6))
 
     # 1. 3D graf povrchu funkcie + čiarová trajektória zostupu
     ax1 = fig.add_subplot(121, projection='3d')
-    X = np.linspace(-5.5, 5.5, 500)
-    Y = np.linspace(-5.5, 5.5, 500)
+    X = np.linspace(-2.5, 2.5, 50)
+    Y = np.linspace(-2.5, 2.5, 50)
     X, Y = np.meshgrid(X, Y)
-    Z = 0.25 * (X**2 + Y**2) + 2 * m_sin(2.5*X) + 1.5 * m_sin(2*Y)
+    Z = X**2 + Y**2
 
     ax1.plot_surface(X, Y, Z, cmap='viridis', alpha=0.6)
     # Vykreslenie cesty zostupu červenou čiarou s bodmi
