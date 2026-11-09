@@ -38,7 +38,7 @@ def nelder_mead(function, points: list, alpha=1, gamma=2, rho=0.5, omega=0.5, k_
 
     iteration = 0
     add_row(iteration, b, g, w)
-    epsilon = 1e-3
+    epsilon = 1e-5
 
     def converged(b, g, w):
         # Zastavenie: d = max vzdialenosť vrcholov od najlepšieho vrcholu B, d < epsilon

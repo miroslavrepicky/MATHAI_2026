@@ -8,7 +8,7 @@ import numpy as np
 from numpy import sin as m_sin
 from scipy.optimize import brentq
 
-def steepest_gradient(function, x_0, epsilon=10e-6, k_max=20000, alpha_max=10):
+def steepest_gradient(function, x_0, epsilon=10e-6, k_max=20000, alpha_max=100):
 
     x, y, alpha = symbols('x y alpha', real=True)
     z = lambdify((x, y), function, 'math')
@@ -75,9 +75,7 @@ def steepest_gradient(function, x_0, epsilon=10e-6, k_max=20000, alpha_max=10):
         
         if math.sqrt(grad_x(new_x_val, new_y_val) ** 2 + grad_y(new_x_val, new_y_val) ** 2) < epsilon:
             break
-        if math.sqrt((new_x_val - x_val) ** 2 + (new_y_val - y_val) ** 2) < epsilon:
-            break
-        if abs(f_x1 - f_x0) < epsilon:
+        if math.sqrt((new_x_val - x_val) ** 2 + (new_y_val - y_val) ** 2) < epsilon and abs(f_x1 - f_x0) < epsilon:
             break
         if counter >= k_max:
             break
