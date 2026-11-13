@@ -45,6 +45,7 @@ def newton_method(function ,start_point):
         history_z.append(z_val)
 
         print(f"V bode {x_val} {y_val} ma funckcia hodnotu: {z_val}")
+        break
 
     return history_x, history_y, history_z
 
@@ -52,7 +53,7 @@ def newton_method(function ,start_point):
 if __name__ == '__main__':
     x, y = symbols('x y', real=True)
     #f = x**2 + 2*y**2
-    f = x**2 + y**2
+    f = x**2 - 4 * x + y**2 - y - x*y
     hx, hy, hz = newton_method(f, (3, 2))
 
     # --- VYKRESLENIE POMOCOU MATPLOTLIB ---

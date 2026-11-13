@@ -18,14 +18,19 @@ def gradient_descent_normalized(function ,start_point):
 
     d_x = lambdify((x, y), diff(function, x), 'math')
     d_y = lambdify((x, y), diff(function, y), 'math')
-    while sqrt(x_val**2 + y_val**2) > 10e-3:
+    while abs(z_prev - z_val) > 10e-3:
         z_prev = z_val
         grad_x = d_x(x_val, y_val)
         grad_y = d_y(x_val, y_val)
+        print(grad_x, grad_y)
         norm_grad = sqrt(grad_x**2 + grad_y**2)
+        if norm_grad == 0:
+            break
         Sx = - grad_x / norm_grad
         Sy = - grad_y / norm_grad
+        print(Sx, Sy)
         f_p1 = function.subs({x: x_val + g * Sx, y: y_val + g * Sy})
+        print(f_p1)
         roots = solve(diff(f_p1, g), g)
         # len. kladné reálne korene, z nich ten s najnižšou hodnotou funkcie
         candidates = [float(r) for r in roots if r.is_real and r > 0]
@@ -38,16 +43,18 @@ def gradient_descent_normalized(function ,start_point):
         history_x.append(x_val)
         history_y.append(y_val)
         history_z.append(z_val)
-        print(f"V bode {x_val} {y_val} ma funckcia hodnotu: {z_val}")
+        print(f"V bode {x_val} {y_val} ma funckcia hodnotu: {z_val}, gamma: {gamma}")
+        break
 
     return history_x, history_y, history_z
 
 
 if __name__ == '__main__':
     x, y = symbols('x y', real=True)
-    f = x**2 - 4*x + y**2 - y - x*y
+    # f = x**2 - 4*x + y**2 - y - x*y
+    f = ((x + 2 * y - 7) ** 2) + ((2 * x + y - 5)**2)
     # f = (x - y)/(x**2 + y**2 + 2)
-    hx, hy, hz = gradient_descent_normalized(f, (5, 5))
+    hx, hy, hz = gradient_descent_normalized(f, (0, 0))
 
     # --- VYKRESLENIE POMOCOU MATPLOTLIB ---
     fig = plt.figure(figsize=(24, 12))

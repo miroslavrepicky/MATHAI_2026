@@ -38,7 +38,7 @@ def nelder_mead(function, points: list, alpha=1, gamma=2, rho=0.5, omega=0.5, k_
 
     iteration = 0
     add_row(iteration, b, g, w)
-    epsilon = 1e-5
+    epsilon = 1e-3
 
     def converged(b, g, w):
         # Zastavenie: d = max vzdialenosť vrcholov od najlepšieho vrcholu B, d < epsilon
@@ -122,9 +122,10 @@ def shrinkage(best, good, worst, omega=0.5):
 
 if __name__ == '__main__':
     x, y = symbols('x y', real=True)
-    f = x**2 - (4 * x) + y**2 - y - x*y
+    # f = x**2 - (4 * x) + y**2 - y - x*y
+    f  = x**2 + 2 * y**2
     # hx, hy, hz = None
-    triangle_history = nelder_mead(f, [(0, 0), (1.2, 0), (0, 0.8)])
+    triangle_history = nelder_mead(f, [(2, 2), (2, 1), (1, 2)])
     z_raw = lambdify((x, y), f, 'math')
     z = lambda a, b: z_raw(a, b)
 
@@ -137,8 +138,8 @@ if __name__ == '__main__':
     Y = np.linspace(-2.5, 2.5, 50)
     X, Y = np.meshgrid(X, Y)
     # Z = 0.25 * (X**2 + Y**2) + 2 * m_sin(2.5*X) + 1.5 * m_sin(2*Y)
-    Z = X**2 - 4 * X + Y**2 - Y - X*Y
-
+    # Z = X**2 - 4 * X + Y**2 - Y - X*Y
+    Z = X**2 + 2 * Y**2
     ax1.plot_surface(X, Y, Z, cmap='viridis', alpha=0.6)
     # Vykreslenie cesty zostupu červenou čiarou s bodmi
     for triangle in triangle_history:
