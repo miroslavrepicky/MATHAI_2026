@@ -12,6 +12,8 @@ def powell_method(function ,start_point, u1, u2):
     x, y, g = symbols('x y g', real=True)
     z = lambdify((x, y), function, 'math')
     x_val, y_val = start_point
+    x_prev = x_val
+    y_prev = y_val
     z_val = z(start_point[0], start_point[1])
     history_x = [x_val]
     history_y = [y_val]
@@ -23,7 +25,7 @@ def powell_method(function ,start_point, u1, u2):
     P0_y = y_val
     i = 0
     print("ITERACIA")
-    while abs(z_val - z_prev) > 0.000001:
+    while abs(x_prev - x_val) + abs(y_prev - y_val) >= 10e-8 or i == 0:
         i += 1
         print(30*'=')
         print("ITERACIA", i)
@@ -57,6 +59,10 @@ def powell_method(function ,start_point, u1, u2):
         x_n_x = x_n1 + gamma * d_x
         x_n_y = y_n1 + gamma * d_y
         z_val = z(x_n_x, x_n_y)
+        x_prev = x_val
+        y_prev = y_val
+        x_val = x_n_x
+        y_val = x_n_y
 
         print(f"x_{i}: {x_n_x:.4f}; {x_n_y:.4f}")
 
@@ -74,42 +80,13 @@ def powell_method(function ,start_point, u1, u2):
 
 
 if __name__ == '__main__':
+    import math
     x, y = symbols('x y', real=True)
-    f = (1.5 - x + x * y)**2 + (2.25 - x + x * y**2)**2 + (2.625 - x + x * y**3)**2
+    f = ((x + 1) ** 2) + 4 * (y - (x ** 3)) ** 2
+    f = x ** 4 - 2 * x ** 2 + (y - x) ** 2
+    f = math.e ** (x + 1) + math.e ** (-y) + (x - y) ** 2
+    f = 20 * (x**2) + y**2  + (x - y + 1)**4
     # f = (x - y)/(x**2 + y**2 + 2)
-    u2 = [1, 0]
-    u1 = [0, 1]
-    hx, hy, hz = powell_method(f, (1, 1), u1, u2)
-
-    # --- VYKRESLENIE POMOCOU MATPLOTLIB ---
-    fig = plt.figure(figsize=(24, 12))
-
-    # 1. 3D graf povrchu funkcie + čiarová trajektória zostupu
-    ax1 = fig.add_subplot(121, projection='3d')
-    X = np.linspace(-2.5, 2.5, 50)
-    Y = np.linspace(-2.5, 2.5, 50)
-    X, Y = np.meshgrid(X, Y)
-    Z = (1.5 - X + X * Y)**2 + (2.25 - X + X * Y**2)**2 + (2.625 - X + X * Y**3)**2
-    # Z = (X - Y) / (X**2 + Y**2 + 2)
-
-    ax1.plot_surface(X, Y, Z, cmap='viridis', alpha=0.6)
-    # Vykreslenie cesty zostupu červenou čiarou s bodmi
-    ax1.plot(hx, hy, hz, color='red', marker='o', markersize=4, label='Cesta sestupu')
-    ax1.set_title('3D pohľad na gradientný sestup')
-    ax1.set_xlabel('x')
-    ax1.set_ylabel('y')
-    ax1.set_zlabel('f(x, y)')
-    ax1.legend()
-
-    # 2. Vrstevnicový graf (Contour plot) – často prehľadnejší na sledovanie optimalizácie zhora
-    ax2 = fig.add_subplot(122)
-    contour = ax2.contour(X, Y, Z, levels=20, cmap='viridis')
-    fig.colorbar(contour, ax=ax2)
-    ax2.plot(hx, hy, color='red', marker='o', markersize=4, label='Optimalizačné kroky')
-    ax2.set_title('Vrstevnice (Top-down pohľad)')
-    ax2.set_xlabel('x')
-    ax2.set_ylabel('y')
-    ax2.legend()
-
-    plt.tight_layout()
-    plt.show()
+    u2 = [0, 1]
+    u1 = [1, 0]
+    hx, hy, hz = powell_method(f, (2, 3), u1, u2)
