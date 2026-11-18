@@ -7,6 +7,7 @@ import random
 import matplotlib.pyplot as plt
 from os.path import join
 
+SEED = 42
 
 class BaseModel:
     def __init__(self):
@@ -35,7 +36,7 @@ class BaseModel:
         elif mode == "ones":
             raise NotImplementedError
         elif mode == "random":
-            np.random.seed(42)
+            np.random.seed(SEED)
             for i, layer in enumerate(self.layers):
                 if isinstance(layer, InputLayer):
                     continue
